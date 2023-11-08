@@ -1,0 +1,13 @@
+#cloud-config
+write_files:
+  # /tmp may not be available during boot; cloud-config docs suggest
+  # using /run/somedir instead. file must be placed in a temporary
+  # location because cloud-config won't overwrite it :(
+  - path: /run/rama/rama.yaml
+    content: ${base64encode(rama_yaml_contents)}
+    encoding: b64
+    owner: ${username}:${username}
+  - path: ${service_file_destination}
+    content: ${base64encode(service_file_contents)}
+    encoding: b64
+    owner: ${username}:${username}

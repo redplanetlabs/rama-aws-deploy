@@ -1,0 +1,20 @@
+# put custom rama.yaml here
+# conductor.host and zookeeper.servers will be added automatically
+
+supervisor.port.range:
+  - 20000
+  - 21000
+
+local.dir: "local-rama-data"
+
+zookeeper.servers:
+%{ for i in range(length(zk_public_ips)) ~}
+  - external: "${zk_public_ips[i]}"
+    internal: "${zk_private_ips[i]}"
+%{ endfor ~}
+
+conductor.host:
+  external: "${ conductor_public_ip }"
+  internal: "${ conductor_private_ip }"
+
+# supervisor.host set by add_ips.sh after instance creation from instance metadata

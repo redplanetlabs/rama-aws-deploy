@@ -1,0 +1,16 @@
+[Unit]
+Description=ZooKeeper Service
+Documentation=http://zookeeper.apache.org
+Requires=network.target
+After=network.target
+
+[Service]
+ExecStart=/home/${username}/zookeeper/bin/zkServer.sh --config /home/${username}/zookeeper/conf start-foreground
+ExecStop=/home/${username}/zookeeper/bin/zkServer.sh --config /home/${username}/zookeeper/conf stop
+ExecReload=/home/${username}/zookeeper/bin/zkServer.sh --config /home/${username}/zookeeper/conf restart
+Restart=always
+RestartSec=3
+WorkingDirectory=/home/${username}/zookeeper
+
+[Install]
+WantedBy=default.target

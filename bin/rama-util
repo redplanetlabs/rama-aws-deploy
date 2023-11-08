@@ -1,0 +1,82 @@
+#!/usr/bin/env python
+
+import os
+import sys
+import subprocess as sub
+import argparse
+
+RAMA_DIR = os.path.join(os.path.expanduser('~'), ".rama")
+
+def get_jars_full(adir):
+    files = os.listdir(adir)
+    ret = []
+    for f in files:
+        if f.endswith(".jar"):
+            ret.append(adir + "/" + f)
+    return ret
+
+def get_classpath(rama_dir, extrajars):
+    ret = get_jars_full(rama_dir)
+    ret.extend(get_jars_full(rama_dir + "/lib"))
+    ret.extend(extrajars)
+
+    ret.append(rama_dir) # for rama.yaml
+    return ":".join(ret)
+
+def quote_str(s):
+    return "'" + s + "'"
+
+def exec_rama_class(klass,
+                    cluster,
+                    jvmtype="-server",
+                    jvmopts=[],
+                    extrajars=[],
+                    args=[],
+                    redirectfile=None):
+    args = map(quote_str, args)
+    rama_dir = os.path.join(RAMA_DIR, cluster)
+    cp = get_classpath(rama_dir, extrajars)
+    all_args = ["java", jvmtype, "-Drama.home=" + rama_dir,
+                "-Dlog4j.configurationFile=file:" + rama_dir + "/log4j2.properties",
+                "-cp", cp,
+                "-XX:+UseG1GC"] + jvmopts + [klass] + args
+    if redirectfile != None:
+        all_args.append(">>")
+        all_args.append(redirectfile)
+        all_args.append("2>&1")
+    # TODO: have a command line switch to print this
+    #print "Running: " + " ".join(all_args)
+    retval = os.system(" ".join(all_args))
+    if retval != 0:
+        raise(Exception("Received non-zero return val", str(retval)))
+
+def logfiles(cluster):
+    jvmopts = ["-Drama.log4j.appender=stdout"]
+    exec_rama_class(
+        "rpl.rama.distributed.command.logfiles",
+        cluster,
+        jvmtype="-client",
+        jvmopts=jvmopts,
+        args=[])
+
+def unknown_command(args):
+    sys.exit("Unknown command: [rama %s]" % ' '.join(args))
+
+COMMANDS = {"logfiles": logfiles}
+
+def main():
+    if len(sys.argv) <= 2:
+        print("Invalid usage: rama-util <cluster-name> <cmd>")
+        sys.exit(-1)
+    args = sys.argv[1:]
+    cluster = args[0]
+    command = args[1]
+    command_args = args[2:]
+    command_fn = COMMANDS.get(command)
+    if command_fn != None:
+        command_fn(cluster, *command_args)
+    else:
+        unknown_command(args)
+
+if __name__ == "__main__":
+    main()

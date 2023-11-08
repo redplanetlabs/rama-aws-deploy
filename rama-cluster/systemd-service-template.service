@@ -1,0 +1,17 @@
+[Unit]
+Description=${description}
+
+[Service]
+WorkingDirectory=/data/rama
+ExecStart=/data/rama/rama ${command}
+Restart=always
+RestartSec=3
+# We need KillMode in here to make sure we don't kill the worker process when 
+# supervisor process is dead. We take liberity to enable this option even 
+# while it *is not recommended* in the docs, since we manage the lifecycle of 
+# worker processes within supervisor.
+# https://www.freedesktop.org/software/systemd/man/systemd.kill.html#KillMode=
+KillMode=process
+
+[Install]
+WantedBy=default.target

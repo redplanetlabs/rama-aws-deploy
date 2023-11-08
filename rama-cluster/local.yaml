@@ -1,0 +1,18 @@
+# put custom rama.yaml here
+# conductor.host and zookeeper.servers will be added automatically
+
+supervisor.port.range:
+  - 20000
+  - 21000
+
+worker.child.opts: "-Xms8192m -Xmx8192m -Xmn4096m -XX:SurvivorRatio=4 -XX:MaxTenuringThreshold=6 -XX:+PrintGC -Xloggc:logs/worker-%ID%-gc.log"
+
+conductor.child.opts: "-XX:+PrintGC -Xloggc:logs/conductor-gc.log"
+
+zookeeper.servers:
+  - external: "${ zk_public_ip }"
+    internal: "${ zk_private_ip }"
+
+conductor.host:
+  external: "${ conductor_public_ip }"
+  internal: "${ conductor_private_ip }"

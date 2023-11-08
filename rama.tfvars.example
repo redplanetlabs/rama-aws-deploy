@@ -1,0 +1,22 @@
+# Required
+username = "ec2-user"
+vpc_security_group_ids = ["sg-12345"]
+
+rama_source_path = "/absolute/path/to/rama.zip"
+license_source_path = "/absolute/path/to/license.edn"
+
+zookeeper_ami_id  = "ami-56789"
+conductor_ami_id  = "ami-12345"
+supervisor_ami_id = "ami-12345"
+
+conductor_instance_type  = "m6g.medium"
+supervisor_instance_type = "m6g.large"
+zookeeper_instance_type  = "m6g.medium"
+
+supervisor_num_nodes = 2
+
+# Optional
+zookeeper_num_nodes  = 1
+supervisor_volume_size_gb = 100
+use_private_ip = false
+private_ssh_key = "123"
