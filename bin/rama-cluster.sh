@@ -29,15 +29,15 @@ echo "Performing ${OP_NAME} ${CLUSTER_NAME}"
 find_rama_tfvars_rec () {
   if test -f "./rama.tfvars"; then
     realpath "./rama.tfvars"
-  else 
-    if [ "$(pwd)" = "/" ]; then 
+  else
+    if [ "$(pwd)" = "/" ]; then
       echo "[ERROR] Could not find rama.tfvars file" >&2
       exit 1
-    else 
+    else
       pushd ..
       find_rama_tfvars_rec
       popd
-    fi  
+    fi
   fi
 }
 
@@ -48,18 +48,13 @@ find_rama_tfvars () {
 }
 
 get_tfvars_value () {
-  # get line  
+  # get line
   line=$(grep $2 $1)
   # get the value, then trim leading/trailing whitespace
   echo "${line#*=}" | xargs
 }
 
 run_destroy () {
-  if [ ! -e ~/.rama/"${CLUSTER_NAME}" ]; then
-    echo "Cluster ${CLUSTER_NAME} does not exist"
-    exit 2
-  fi
-
   cd ${TF_ROOT_DIR}
   tfvars="$(find_rama_tfvars)"
   terraform workspace select "${WORKSPACE_NAME}"
