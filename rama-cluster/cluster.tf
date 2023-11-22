@@ -278,7 +278,6 @@ resource "aws_instance" "supervisor" {
   #subnet_id              = local.subnet_id
   vpc_security_group_ids = local.vpc_security_group_ids
   key_name               = var.key_name
-  iam_instance_profile   = "deployed-supervisor-node"
 
   user_data = data.cloudinit_config.supervisor_config.rendered
 
