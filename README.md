@@ -2,6 +2,7 @@
 - [Deploying](#deploying)
   - [Deploying a Rama Cluster and Modules](#deploying-a-rama-cluster-and-modules)
 - [Cluster Configuration and Debugging](#cluster-configuration-and-debugging)
+  - [Java](#java)
   - [systemd and journalctl](#systemd-and-journalctl)
   - [file system layout](#file-system-layout)
 - [rama.tfvars variables](#ramatfvars-variables)
@@ -9,6 +10,7 @@
   - [vpc\_security\_group\_ids](#vpc_security_group_ids)
   - [rama\_source\_path](#rama_source_path)
   - [license\_source\_path](#license_source_path)
+  - [zookeeper\_url](#zookeeper_url)
   - [conductor\_ami\_id](#conductor_ami_id)
   - [supervisor\_ami\_id](#supervisor_ami_id)
   - [zookeeper\_ami\_id](#zookeeper_ami_id)
@@ -63,6 +65,12 @@ symlink to a `rama` script that is configured to point to the launched cluster.
 To destroy a cluster run `bin/rama-cluster.sh destroy <cluster-name>`.
 
 ## Cluster Configuration and Debugging
+
+### Java
+
+Zookeeper and Rama require Java to be present on the system to run.
+Rama supports LTS versions of Java - 8, 11, 17 and 21. One of these needs to
+be installed on the AMI.
 
 ### systemd and journalctl
 
@@ -127,6 +135,12 @@ An absolute path pointing to the location on the local disk of your `rama.zip`.
 - required: `true`
 
 An absolute path pointing to the location on the local disk of your Rama license file.
+
+### zookeeper_url
+- type: `string`
+- required: `true`
+
+The URL to download a zookeeper tar ball from to install on the zookeeper node(s).
 
 ### conductor_ami_id
 - type: `string`

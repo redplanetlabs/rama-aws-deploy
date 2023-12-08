@@ -2,8 +2,9 @@
 username = "ec2-user"
 vpc_security_group_ids = ["sg-12345"]
 
-rama_source_path = "/absolute/path/to/rama.zip"
+rama_source_path    = "/absolute/path/to/rama.zip"
 license_source_path = "/absolute/path/to/license.edn"
+zookeeper_version   = "https://dlcdn.apache.org/zookeeper/zookeeper-3.8.3/apache-zookeeper-3.8.3-bin.tar.gz"
 
 zookeeper_ami_id  = "ami-56789"
 conductor_ami_id  = "ami-12345"
