@@ -73,6 +73,17 @@ run_destroy () {
   return 0
 }
 
+confirm_destroy () {
+  echo "WARNING: you are attempting to destroy a cluster. Are you sure you want to do this?"
+  read -p "Enter the name of the cluster to confirm destroy: " cluster_name
+  if [ "$cluster_name" = "$CLUSTER_NAME" ]; then
+    echo "Destroying $cluster_name..."
+    run_destroy
+  else
+    echo "Cluster name was not entered, preserving cluster."
+  fi
+}
+
 # allow passing in of extra args to `terraform apply`
 all_args=("$@")
 rest_args=("${all_args[@]:2}")
@@ -87,8 +98,8 @@ run_deploy () {
 
   cd ${TF_ROOT_DIR}
   tfvars="$(find_rama_tfvars)"
-  terraform workspace select "${WORKSPACE_NAME}" &> /dev/null || terraform workspace new "${WORKSPACE_NAME}"
   terraform init
+  terraform workspace select "${WORKSPACE_NAME}" &> /dev/null || terraform workspace new "${WORKSPACE_NAME}"
   terraform apply \
     -auto-approve \
     -parallelism=30 \
@@ -107,7 +118,7 @@ run_deploy () {
 
   rama_source_path="$(get_tfvars_value $tfvars rama_source_path)"
   (
-      cp ${rama_source_path} ${HOME_CLUSTER_DIR}
+      cp ${rama_source_path} ${HOME_CLUSTER_DIR}/rama.zip
       cp ${tfvars} ${HOME_CLUSTER_DIR}
   )
   (
@@ -142,7 +153,7 @@ case "${OP_NAME}" in
     run_deploy
     ;;
   destroy)
-    run_destroy
+    confirm_destroy
     ;;
   plan)
     run_plan
