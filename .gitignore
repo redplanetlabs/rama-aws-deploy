@@ -1,6 +1,6 @@
-rama-cluster/.terraform 
+rama-cluster/.terraform
 rama-cluster/.terraform.lock.hcl
-rama-cluster/terraform.tfstate.d 
+rama-cluster/terraform.tfstate.d
 *zip
 license.edn
 rama.tfvars

@@ -23,6 +23,7 @@ variable "vpc_security_group_ids" { type = list(string) }
 
 variable "rama_source_path"    { type = string }
 variable "license_source_path" { type = string }
+variable "zookeeper_url"       { type = string }
 
 variable "conductor_ami_id"  { type = string }
 variable "supervisor_ami_id" { type = string }
@@ -87,25 +88,6 @@ data "http" "myip" {
 # These resources are defined to have no dependencies on other resouces. This
 # way the EC2 instances can be created in parallel, which saves time.
 ###
-
-data "cloudinit_config" "zookeeper_config" {
-  part {
-    content_type = "cloud_config"
-    content = templatefile("cloud-config.yaml", {
-      rama_yaml_contents = templatefile("conductor/rama.yaml", {
-        zk_public_ips  = local.zk_public_ips
-        zk_private_ips = local.zk_private_ips
-      })
-      service_file_destination = "${local.systemd_dir}/conductor.service",
-      service_file_contents = templatefile("systemd-service-template.service", {
-        description = "Rama Conductor"
-        command     = "conductor"
-      })
-      service_name = "conductor"
-      username = var.username
-    })
-  }
-}
 
 resource "aws_instance" "zookeeper" {
   ami           = var.zookeeper_ami_id
@@ -316,6 +298,18 @@ resource "null_resource" "zookeeper" {
   }
 
   provisioner "file" {
+    source = "zookeeper/setup.sh"
+    destination = "${local.home_dir}/setup.sh"
+  }
+
+  provisioner "remote-exec" {
+    inline = [
+      "chmod +x ${local.home_dir}/setup.sh",
+      "${local.home_dir}/setup.sh ${var.zookeeper_url}"
+    ]
+  }
+
+  provisioner "file" {
     content = templatefile("zookeeper/zoo.cfg", {
         num_servers    = var.zookeeper_num_nodes,
         zk_private_ips = local.zk_private_ips,
@@ -323,10 +317,6 @@ resource "null_resource" "zookeeper" {
         username       = var.username
     })
     destination = "${local.home_dir}/zookeeper/conf/zoo.cfg"
-  }
-
-  provisioner "remote-exec" {
-    inline = ["mkdir -p ${local.home_dir}/zookeeper/data"]
   }
 
   provisioner "file" {
@@ -337,7 +327,7 @@ resource "null_resource" "zookeeper" {
   }
 
   provisioner "remote-exec" {
-    script = "zookeeper/setup.sh"
+    script = "zookeeper/start.sh"
   }
 }
 
