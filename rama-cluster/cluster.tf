@@ -89,25 +89,6 @@ data "http" "myip" {
 # way the EC2 instances can be created in parallel, which saves time.
 ###
 
-data "cloudinit_config" "zookeeper_config" {
-  part {
-    content_type = "cloud_config"
-    content = templatefile("cloud-config.yaml", {
-      rama_yaml_contents = templatefile("conductor/rama.yaml", {
-        zk_public_ips  = local.zk_public_ips
-        zk_private_ips = local.zk_private_ips
-      })
-      service_file_destination = "${local.systemd_dir}/conductor.service",
-      service_file_contents = templatefile("systemd-service-template.service", {
-        description = "Rama Conductor"
-        command     = "conductor"
-      })
-      service_name = "conductor"
-      username = var.username
-    })
-  }
-}
-
 resource "aws_instance" "zookeeper" {
   ami           = var.zookeeper_ami_id
   instance_type = var.zookeeper_instance_type
