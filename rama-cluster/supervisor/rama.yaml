@@ -17,4 +17,4 @@ conductor.host:
   external: "${ conductor_public_ip }"
   internal: "${ conductor_private_ip }"
 
-# supervisor.host set by add_ips.sh after instance creation from instance metadata
+# supervisor.host set by start.sh after instance creation from instance metadata
