@@ -146,7 +146,7 @@ data "cloudinit_config" "conductor_config" {
         description = "Rama Conductor",
         command     = "conductor"
       }),
-      # team-license.yaml
+      # rama.license
       license_file_contents = file("${var.license_source_path}"),
       # Manage rama.zip script
       unpack_rama_contents = templatefile("conductor/unpack-rama.sh", {
