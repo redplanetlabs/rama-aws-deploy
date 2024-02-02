@@ -1,4 +1,5 @@
 # Required
+region = "us-west-2"
 username = "ec2-user"
 vpc_security_group_ids = ["sg-12345"]
 

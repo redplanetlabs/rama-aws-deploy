@@ -2,32 +2,24 @@
 # variables & configuration
 ###
 
-provider "aws" {
-  region      = "us-west-2"
-  max_retries = 25
-  version     = "~> 4.1.0"
-}
-
-provider "cloudinit" {
-  version     = "~> 2.2.0"
-}
-
 ## Required vars
 
+variable "region" { type = string }
+
 variable "cluster_name" { type = string } # from rama-cluster.sh
-variable "key_name"     { type = string } # from ~/.rama/auth.tfvars
+variable "key_name" { type = string }     # from ~/.rama/auth.tfvars
 
 # From rama.tfvars
 variable "username" { type = string }
 variable "vpc_security_group_ids" { type = list(string) }
 
-variable "rama_source_path"    { type = string }
+variable "rama_source_path" { type = string }
 variable "license_source_path" { type = string }
-variable "zookeeper_url"       { type = string }
+variable "zookeeper_url" { type = string }
 
-variable "conductor_ami_id"  { type = string }
+variable "conductor_ami_id" { type = string }
 variable "supervisor_ami_id" { type = string }
-variable "zookeeper_ami_id"  { type = string }
+variable "zookeeper_ami_id" { type = string }
 
 variable "zookeeper_instance_type" { type = string }
 variable "conductor_instance_type" { type = string }
@@ -55,6 +47,16 @@ variable "use_private_ip" {
 variable "private_ssh_key" {
   type    = string
   default = null
+}
+
+provider "aws" {
+  region      = var.region
+  max_retries = 25
+  version     = "~> 4.1.0"
+}
+
+provider "cloudinit" {
+  version = "~> 2.2.0"
 }
 
 locals {
@@ -140,7 +142,7 @@ data "cloudinit_config" "conductor_config" {
         zk_private_ips = local.zk_private_ips
       }),
       # conductor.service
-      service_name = "conductor",
+      service_name             = "conductor",
       service_file_destination = "${local.systemd_dir}/conductor.service",
       service_file_contents = templatefile("systemd-service-template.service", {
         description = "Rama Conductor",
@@ -182,11 +184,11 @@ resource "aws_instance" "conductor" {
 
   provisioner "remote-exec" {
     # Make sure SSH is up and available on the server before trying to upload rama.zip
-    inline = [ "ls" ]
+    inline = ["ls"]
   }
 
   provisioner "local-exec" {
-    when = create
+    when    = create
     command = "./upload_rama.sh ${var.rama_source_path} ${var.username} ${var.use_private_ip ? self.private_ip : self.public_ip}"
   }
 
@@ -211,14 +213,14 @@ resource "aws_instance" "conductor" {
 data "cloudinit_config" "supervisor_config" {
   part {
     content_type = "text/x-shellscript"
-    content      = templatefile("setup-disks.sh", {
+    content = templatefile("setup-disks.sh", {
       username = var.username
     })
   }
 
   part {
     content_type = "text/x-shellscript"
-    content      = templatefile("download_rama.sh", {
+    content = templatefile("download_rama.sh", {
       conductor_ip = local.conductor_private_ip
     })
   }
@@ -239,7 +241,7 @@ data "cloudinit_config" "supervisor_config" {
         command     = "supervisor"
       })
       service_name = "supervisor"
-      username = var.username
+      username     = var.username
     })
   }
 
@@ -247,7 +249,7 @@ data "cloudinit_config" "supervisor_config" {
     # Supervisor's own IP can't be templated into rama.yaml above, so
     # we need to run a script to look it up from the instance metadata
     content_type = "text/x-shellscript"
-    content      = templatefile("supervisor/start.sh", {
+    content = templatefile("supervisor/start.sh", {
       username = var.username
     })
   }
@@ -298,7 +300,7 @@ resource "null_resource" "zookeeper" {
   }
 
   provisioner "file" {
-    source = "zookeeper/setup.sh"
+    source      = "zookeeper/setup.sh"
     destination = "${local.home_dir}/setup.sh"
   }
 
@@ -311,17 +313,17 @@ resource "null_resource" "zookeeper" {
 
   provisioner "file" {
     content = templatefile("zookeeper/zoo.cfg", {
-        num_servers    = var.zookeeper_num_nodes,
-        zk_private_ips = local.zk_private_ips,
-        server_index   = count.index
-        username       = var.username
+      num_servers    = var.zookeeper_num_nodes,
+      zk_private_ips = local.zk_private_ips,
+      server_index   = count.index
+      username       = var.username
     })
     destination = "${local.home_dir}/zookeeper/conf/zoo.cfg"
   }
 
   provisioner "file" {
     content = templatefile("zookeeper/myid", {
-        zkid = count.index + 1
+      zkid = count.index + 1
     })
     destination = "${local.home_dir}/zookeeper/data/myid"
   }

@@ -111,6 +111,12 @@ The relevant directories to look at are the `$HOME` directory, as well as
 
 ## rama.tfvars variables
 
+### region 
+- type: `string`
+- required: `true`
+
+The AWS region to deploy the cluster to.
+
 ### username
 - type: `string`
 - required: `true`
