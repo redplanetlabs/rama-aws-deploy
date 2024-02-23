@@ -139,6 +139,7 @@ data "cloudinit_config" "conductor_config" {
     content_type = "text/x-shellscript"
     content = templatefile("setup-disks.sh", {
       username = var.username
+      package_manager_command = var.package_manager_command
     })
   }
 
@@ -225,6 +226,7 @@ data "cloudinit_config" "supervisor_config" {
     content_type = "text/x-shellscript"
     content = templatefile("setup-disks.sh", {
       username = var.username
+      package_manager_command = var.package_manager_command
     })
   }
 
@@ -316,6 +318,7 @@ resource "null_resource" "zookeeper" {
 
   provisioner "remote-exec" {
     inline = [
+      "export PACKAGE_MANAGER_COMMAND=${var.package_manager_command}",
       "chmod +x ${local.home_dir}/setup.sh",
       "${local.home_dir}/setup.sh ${var.zookeeper_url}"
     ]
@@ -338,8 +341,17 @@ resource "null_resource" "zookeeper" {
     destination = "${local.home_dir}/zookeeper/data/myid"
   }
 
+  provisioner "file" {
+    source      = "zookeeper/start.sh"
+    destination = "${local.home_dir}/start.sh"
+  }
+
   provisioner "remote-exec" {
-    script = "zookeeper/start.sh"
+    inline = [
+      "export PACKAGE_MANAGER_COMMAND=${var.package_manager_command}",
+      "chmod +x ${local.home_dir}/start.sh",
+      "${local.home_dir}/start.sh"
+    ]
   }
 }
 
