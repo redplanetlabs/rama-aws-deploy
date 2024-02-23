@@ -49,6 +49,16 @@ variable "private_ssh_key" {
   default = null
 }
 
+variable "package_manager_command" {
+  type = string
+  default = "yum"
+
+  validation {
+    condition = contains(["yum", "apt-get"], var.package_manager_command)
+    error_message = "Only yum and apt-get are accepted"
+  }
+}
+
 provider "aws" {
   region      = var.region
   max_retries = 25
