@@ -3,6 +3,7 @@
   - [Deploying a Rama Cluster and Modules](#deploying-a-rama-cluster-and-modules)
 - [Cluster Configuration and Debugging](#cluster-configuration-and-debugging)
   - [Java](#java)
+  - [unzip and curl](#unzip-and-curl)
   - [systemd and journalctl](#systemd-and-journalctl)
   - [file system layout](#file-system-layout)
 - [rama.tfvars variables](#ramatfvars-variables)
@@ -71,6 +72,9 @@ To destroy a cluster run `bin/rama-cluster.sh destroy <cluster-name>`.
 Zookeeper and Rama require Java to be present on the system to run.
 Rama supports LTS versions of Java - 8, 11, 17 and 21. One of these needs to
 be installed on the AMI.
+
+### unzip and curl
+The cluster creation requires these commands to be present on the system.
 
 ### systemd and journalctl
 
