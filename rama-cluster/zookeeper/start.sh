@@ -1,6 +1,6 @@
 ##!/bin/bash
 
-sudo yum update -y
+sudo ${PACKAGE_MANAGER_COMMAND} update -y
 
 echo "Starting zookeeper..." >> setup.log
 

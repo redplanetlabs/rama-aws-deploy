@@ -2,7 +2,7 @@
 
 # This is intended to be run as root - user data scripts are run as such automatically
 
-yum -y install nvme-cli
+${package_manager_command} -y install nvme-cli
 
 DEVICE=`nvme list | grep "Instance Storage" | awk '{print $1}'`
 
