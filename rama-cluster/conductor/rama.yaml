@@ -11,7 +11,7 @@ local.dir: "local-rama-data"
 
 zookeeper.servers:
 %{ for i in range(length(zk_private_ips)) ~}
-  - internal: "${zk_private_ips[i]}"
+  - "${zk_private_ips[i]}"
 %{ endfor ~}
 
 conductor.host: "localhost"
