@@ -14,6 +14,7 @@ mkdir tmp && tar zxvf zookeeper.tar.gz -C tmp &>> setup.log
 # directory. Since we don't know the name of the file this is going to be, we
 # can't just do a more straight fowards rename without isolating the file into
 # it's own directory first.
+mkdir zookeeper
 mv tmp/* zookeeper
 rm -rf tmp # then we clean up the now empty temporary directory
 
