@@ -10,9 +10,6 @@ worker.child.opts: "-Xms8192m -Xmx8192m -Xmn4096m -XX:SurvivorRatio=4 -XX:MaxTen
 conductor.child.opts: "-XX:+PrintGC -Xloggc:logs/conductor-gc.log"
 
 zookeeper.servers:
-  - external: "${ zk_public_ip }"
-    internal: "${ zk_private_ip }"
+  - internal: "${ zk_private_ip }"
 
-conductor.host:
-  external: "${ conductor_public_ip }"
-  internal: "${ conductor_private_ip }"
+conductor.host: "${ conductor_private_ip }"

@@ -8,13 +8,10 @@ supervisor.port.range:
 local.dir: "local-rama-data"
 
 zookeeper.servers:
-%{ for i in range(length(zk_public_ips)) ~}
-  - external: "${zk_public_ips[i]}"
-    internal: "${zk_private_ips[i]}"
+%{ for i in range(length(zk_private_ips)) ~}
+  - internal: "${zk_private_ips[i]}"
 %{ endfor ~}
 
-conductor.host:
-  external: "${ conductor_public_ip }"
-  internal: "${ conductor_private_ip }"
+conductor.host: "${ conductor_private_ip }"
 
 # supervisor.host set by start.sh after instance creation from instance metadata

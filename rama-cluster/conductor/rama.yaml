@@ -10,8 +10,8 @@ conductor.child.opts: "-XX:+PrintGC -Xloggc:logs/conductor-gc.log"
 local.dir: "local-rama-data"
 
 zookeeper.servers:
-%{ for i in range(length(zk_public_ips)) ~}
-  - external: "${zk_public_ips[i]}"
-    internal: "${zk_private_ips[i]}"
+%{ for i in range(length(zk_private_ips)) ~}
+  - internal: "${zk_private_ips[i]}"
 %{ endfor ~}
+
 conductor.host: "localhost"

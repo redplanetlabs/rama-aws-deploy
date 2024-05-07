@@ -4,3 +4,4 @@ rama-cluster/terraform.tfstate.d
 *zip
 license.edn
 rama.tfvars
+.idea
