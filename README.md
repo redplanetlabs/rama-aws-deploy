@@ -20,7 +20,6 @@
   - [supervisor\_num\_nodes](#supervisor_num_nodes)
   - [zookeeper\_num\_nodes](#zookeeper_num_nodes)
   - [supervisor\_volume\_size\_gb](#supervisor_volume_size_gb)
-  - [use\_private\_ip](#use_private_ip)
   - [private\_ssh\_key](#private_ssh_key)
 
 ## Prerequisites

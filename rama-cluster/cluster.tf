@@ -39,11 +39,6 @@ variable "supervisor_volume_size_gb" {
   default = 100
 }
 
-variable "use_private_ip" {
-  type    = bool
-  default = true
-}
-
 variable "private_ssh_key" {
   type    = string
   default = null
@@ -60,10 +55,8 @@ provider "cloudinit" {
 }
 
 locals {
-  zk_public_ips  = aws_instance.zookeeper[*].public_ip
   zk_private_ips = aws_instance.zookeeper[*].private_ip
 
-  conductor_public_ip  = aws_instance.conductor.public_ip
   conductor_private_ip = aws_instance.conductor.private_ip
 
   home_dir    = "/home/${var.username}"
@@ -117,7 +110,7 @@ resource "aws_instance" "zookeeper" {
   connection {
     type        = "ssh"
     user        = var.username
-    host        = var.use_private_ip ? self.private_ip : self.public_ip
+    host        = self.private_ip
     private_key = var.private_ssh_key != null ? file(var.private_ssh_key) : null
   }
 }
@@ -138,7 +131,6 @@ data "cloudinit_config" "conductor_config" {
       username = var.username,
       # rama.yaml
       rama_yaml_contents = templatefile("conductor/rama.yaml", {
-        zk_public_ips  = local.zk_public_ips
         zk_private_ips = local.zk_private_ips
       }),
       # conductor.service
@@ -189,7 +181,7 @@ resource "aws_instance" "conductor" {
 
   provisioner "local-exec" {
     when    = create
-    command = "./upload_rama.sh ${var.rama_source_path} ${var.username} ${var.use_private_ip ? self.private_ip : self.public_ip}"
+    command = "./upload_rama.sh ${var.rama_source_path} ${var.username} ${self.private_ip}"
   }
 
   provisioner "remote-exec" {
@@ -203,7 +195,7 @@ resource "aws_instance" "conductor" {
   connection {
     type        = "ssh"
     user        = var.username
-    host        = var.use_private_ip ? self.private_ip : self.public_ip
+    host        = self.private_ip
     private_key = var.private_ssh_key != null ? file(var.private_ssh_key) : null
   }
 }
@@ -230,9 +222,7 @@ data "cloudinit_config" "supervisor_config" {
     filename     = "cloud-config.yaml"
     content = templatefile("cloud-config.yaml", {
       rama_yaml_contents = templatefile("supervisor/rama.yaml", {
-        zk_public_ips        = local.zk_public_ips
         zk_private_ips       = local.zk_private_ips
-        conductor_public_ip  = aws_instance.conductor.public_ip
         conductor_private_ip = aws_instance.conductor.private_ip
       })
       service_file_destination = "${local.systemd_dir}/supervisor.service",
@@ -276,7 +266,7 @@ resource "aws_instance" "supervisor" {
   connection {
     type        = "ssh"
     user        = var.username
-    host        = var.use_private_ip ? self.private_ip : self.public_ip
+    host        = self.private_ip
     private_key = var.private_ssh_key != null ? file(var.private_ssh_key) : null
   }
 }
@@ -291,7 +281,7 @@ resource "null_resource" "zookeeper" {
   connection {
     type        = "ssh"
     user        = var.username
-    host        = var.use_private_ip ? aws_instance.zookeeper[count.index].private_ip : aws_instance.zookeeper[count.index].public_ip
+    host        = aws_instance.zookeeper[count.index].private_ip
     private_key = var.private_ssh_key != null ? file(var.private_ssh_key) : null
   }
 
@@ -345,9 +335,7 @@ resource "null_resource" "local" {
       "cat <<\"EOF\" > \"%s\"\n%s\nEOF",
       "/tmp/deployment.yaml",
       templatefile("local.yaml", {
-        zk_public_ip         = aws_instance.zookeeper[0].public_ip
         zk_private_ip        = aws_instance.zookeeper[0].private_ip
-        conductor_public_ip  = local.conductor_public_ip
         conductor_private_ip = local.conductor_private_ip
       })
     )
@@ -358,19 +346,19 @@ resource "null_resource" "local" {
 # Output useful info
 ###
 output "zookeeper_ips" {
-  value = var.use_private_ip ? local.zk_private_ips : local.zk_public_ips
+  value = local.zk_private_ips
 }
 
 output "conductor_ip" {
-  value = var.use_private_ip ? local.conductor_private_ip : local.conductor_public_ip
+  value = local.conductor_private_ip
 }
 
 output "supervisor_ids" {
-  value = var.use_private_ip ? aws_instance.supervisor.*.private_ip : aws_instance.supervisor.*.public_ip
+  value = aws_instance.supervisor.*.private_ip
 }
 
 output "conductor_ui" {
-  value = "http://${var.use_private_ip ? local.conductor_private_ip : local.conductor_public_ip}:8888"
+  value = "http://${local.conductor_private_ip}:8888"
 }
 
 output "ec2_console" {
