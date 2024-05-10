@@ -21,3 +21,4 @@ supervisor_num_nodes = 2
 zookeeper_num_nodes  = 1
 supervisor_volume_size_gb = 100
 private_ssh_key = "123"
+use_private_ip = false
