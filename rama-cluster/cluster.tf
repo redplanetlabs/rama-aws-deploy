@@ -41,7 +41,7 @@ variable "supervisor_volume_size_gb" {
 
 variable "use_private_ip" {
   type    = bool
-  default = true
+  default = false
 }
 
 variable "private_ssh_key" {
