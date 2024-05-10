@@ -1,27 +1,27 @@
 - [Prerequisites](#prerequisites)
 - [Deploying](#deploying)
-    - [Deploying a Rama Cluster and Modules](#deploying-a-rama-cluster-and-modules)
+  - [Deploying a Rama Cluster and Modules](#deploying-a-rama-cluster-and-modules)
 - [Cluster Configuration and Debugging](#cluster-configuration-and-debugging)
-    - [AMI requirements](#ami-requirements)
-    - [systemd and journalctl](#systemd-and-journalctl)
-    - [file system layout](#file-system-layout)
+  - [AMI requirements](#ami-requirements)
+  - [systemd and journalctl](#systemd-and-journalctl)
+  - [file system layout](#file-system-layout)
 - [rama.tfvars variables](#ramatfvars-variables)
-    - [username](#username)
-    - [vpc\_security\_group\_ids](#vpc_security_group_ids)
-    - [rama\_source\_path](#rama_source_path)
-    - [license\_source\_path](#license_source_path)
-    - [zookeeper\_url](#zookeeper_url)
-    - [conductor\_ami\_id](#conductor_ami_id)
-    - [supervisor\_ami\_id](#supervisor_ami_id)
-    - [zookeeper\_ami\_id](#zookeeper_ami_id)
-    - [conductor\_instance\_type](#conductor_instance_type)
-    - [supervisor\_instance\_type](#supervisor_instance_type)
-    - [zookeeper\_instance\_type](#zookeeper_instance_type)
-    - [supervisor\_num\_nodes](#supervisor_num_nodes)
-    - [zookeeper\_num\_nodes](#zookeeper_num_nodes)
-    - [supervisor\_volume\_size\_gb](#supervisor_volume_size_gb)
-    - [use\_private\_ip](#use_private_ip)
-    - [private\_ssh\_key](#private_ssh_key)
+  - [username](#username)
+  - [vpc\_security\_group\_ids](#vpc_security_group_ids)
+  - [rama\_source\_path](#rama_source_path)
+  - [license\_source\_path](#license_source_path)
+  - [zookeeper\_url](#zookeeper_url)
+  - [conductor\_ami\_id](#conductor_ami_id)
+  - [supervisor\_ami\_id](#supervisor_ami_id)
+  - [zookeeper\_ami\_id](#zookeeper_ami_id)
+  - [conductor\_instance\_type](#conductor_instance_type)
+  - [supervisor\_instance\_type](#supervisor_instance_type)
+  - [zookeeper\_instance\_type](#zookeeper_instance_type)
+  - [supervisor\_num\_nodes](#supervisor_num_nodes)
+  - [zookeeper\_num\_nodes](#zookeeper_num_nodes)
+  - [supervisor\_volume\_size\_gb](#supervisor_volume_size_gb)
+  - [use\_private\_ip](#use_private_ip)
+  - [private\_ssh\_key](#private_ssh_key)
 
 ## Prerequisites
 
@@ -113,7 +113,7 @@ The relevant directories to look at are the `$HOME` directory, as well as
 
 ## rama.tfvars variables
 
-### region
+### region 
 - type: `string`
 - required: `true`
 
@@ -209,16 +209,6 @@ Note: Zookpeeer recommends setting this to an odd number
 - default: `100`
 
 The size of the supervisors' disks on the nodes.
-
-### use_private_ip
-- type: `bool`
-- required: `false`
-- default: `true`
-
-Whether to use the global public IDs, or private internal IPs.
-
-Ex. if your security group is configured to only allow connection through a VPN, you should set
-this to true so that you're not coming from outside the network.
 
 ### private_ssh_key
 - type: `string`
