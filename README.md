@@ -210,6 +210,16 @@ Note: Zookpeeer recommends setting this to an odd number
 
 The size of the supervisors' disks on the nodes.
 
+### use_private_ip
+- type: `bool`
+- required: `false`
+- default: `false`
+
+Whether to use the global public IDs, or private internal IPs.
+
+Ex. if your security group is configured to only allow connection through a VPN, you should set
+this to true so that you're not coming from outside the network.
+
 ### private_ssh_key
 - type: `string`
 - required: `false`
