@@ -1,0 +1,4 @@
+output "swag" {
+  value = "epic"
+}
+

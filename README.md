@@ -59,7 +59,7 @@ To deploy a rama cluster:
    For example, if you wanted to just deploy zookeeper servers, you would run
    `bin/rama-cluster.sh deploy my-cluster -target=aws_instance.zookeeper`.
 
-To run modules, use `rama-<cluster-name> deploy ...`. `rama-<cluster-name>` is a
+To run modules, use `rama-<cluster-name> deploy ...` (in your ~/.rama, in your PATH). `rama-<cluster-name>` is a
 symlink to a `rama` script that is configured to point to the launched cluster.
 
 To destroy a cluster run `bin/rama-cluster.sh destroy <cluster-name>`.
