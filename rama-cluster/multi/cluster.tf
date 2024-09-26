@@ -213,7 +213,7 @@ resource "aws_instance" "conductor" {
 data "cloudinit_config" "supervisor_config" {
   part {
     content_type = "text/x-shellscript"
-    content = templatefile("setup-disks.sh", {
+    content = templatefile("../common/setup-disks.sh", {
       username = var.username
     })
   }
@@ -330,7 +330,7 @@ resource "null_resource" "zookeeper" {
   }
 
   provisioner "remote-exec" {
-    script = "../common/zookeeper/start.sh"
+    script = "zookeeper/start.sh"
   }
 }
 
@@ -345,7 +345,7 @@ resource "null_resource" "local" {
     command = format(
       "cat <<\"EOF\" > \"%s\"\n%s\nEOF",
       "/tmp/deployment.yaml",
-      templatefile("local.yaml", {
+      templatefile("../common/local.yaml", {
         zk_public_ip         = aws_instance.zookeeper[0].public_ip
         zk_private_ip        = aws_instance.zookeeper[0].private_ip
         conductor_public_ip  = local.conductor_public_ip
