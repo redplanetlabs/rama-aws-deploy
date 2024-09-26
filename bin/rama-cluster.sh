@@ -2,7 +2,7 @@
 set -euo pipefail
 
 usage () {
-  echo "Usage: rama-cluster.sh <deploy|deploySingle|destroy|plan> [--singleNode] <cluster-name> [optional terraform apply args]"
+  echo "Usage: rama-cluster.sh <deploy|destroy|plan> [--singleNode] <cluster-name> [optional terraform apply args]"
   exit 2
 }
 
