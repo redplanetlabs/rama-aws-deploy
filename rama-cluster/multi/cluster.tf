@@ -323,14 +323,14 @@ resource "null_resource" "zookeeper" {
   }
 
   provisioner "file" {
-    content = templatefile("zookeeper/myid", {
+    content = templatefile("../common/zookeeper/myid", {
       zkid = count.index + 1
     })
     destination = "${local.home_dir}/zookeeper/data/myid"
   }
 
   provisioner "remote-exec" {
-    script = "zookeeper/start.sh"
+    script = "../common/zookeeper/start.sh"
   }
 }
 

@@ -157,13 +157,6 @@ data "cloudinit_config" "rama_config" {
 	  service_name = "supervisor"
 	})
   }
-
-  part {
-	content_type = "text/x-shellscript"
-	content = templatefile("./start.sh", {
-	  username = var.username
-	})
-  }
 }
 
 resource "null_resource" "rama" {
@@ -180,6 +173,7 @@ resource "null_resource" "rama" {
 
   provisioner "file" {
 	source = "../common/zookeeper/setup.sh"
+	destination = "${local.home_dir}/setup.sh"
   }
 
   provisioner "remote-exec" {
@@ -200,14 +194,14 @@ resource "null_resource" "rama" {
   }
 
   provisioner "file" {
-	content = templatefile("zookeeper/myid", {
+	content = templatefile("../common/zookeeper/myid", {
 	  zkid = 1
 	})
 	destination = "${local.home_dir}/zookeeper/data/myid"
   }
 
   provisioner "remote-exec" {
-	script = "zookeeper/start.sh"
+    script = "./start.sh"
   }
 }
 
@@ -221,7 +215,7 @@ resource "null_resource" "local" {
     command = format(
       "cat <<\"EOF\" > \"%s\"\n%s\nEOF",
       "/tmp/deployment.yaml",
-      templatefile("local.yaml", {
+      templatefile("../common/local.yaml", {
         zk_public_ip         = aws_instance.rama.public_ip
         zk_private_ip        = aws_instance.rama.private_ip
         conductor_public_ip  = aws_instance.rama.public_ip
