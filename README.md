@@ -52,9 +52,9 @@ To deploy a rama cluster:
 1. Make sure you have your zip file of Rama and license downloaded.
 2. Create `rama.tfvars` at the root of your project to set Terraform variables.
    These govern e.g. the number of supervisors to deploy.
-   See `rama.tfvars.example`. There are several variables that are
+   See `rama.tfvars.multi.example` or `rama.tfvars.single.example`, depending on if you want to run on a single instance or multiple. There are several variables that are
    required to set.
-3. Run `bin/rama-cluster.sh deploy <cluster-name> [opt-args]`.
+3. Run `bin/rama-cluster.sh deploy <cluster-name> [opt-args]` or `bin/rama-cluster.sh deploy --singleNode <cluster-name> [opt-args]`.
    `opt-args` are passed to `terraform apply`.
    For example, if you wanted to just deploy zookeeper servers, you would run
    `bin/rama-cluster.sh deploy my-cluster -target=aws_instance.zookeeper`.
