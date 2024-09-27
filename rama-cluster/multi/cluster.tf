@@ -183,6 +183,11 @@ resource "aws_instance" "conductor" {
   }
 
   provisioner "remote-exec" {
+    # make sure disk provisioning is done
+    script = "wait-for-signal.sh"
+  }
+
+  provisioner "remote-exec" {
     # Make sure SSH is up and available on the server before trying to upload rama.zip
     inline = ["ls"]
   }

@@ -28,3 +28,6 @@ mkswap /swapfile
 swapon /swapfile
 echo '/swapfile none swap sw 0 0' | tee -a /etc/fstab
 echo 'vm.swappiness=0' | tee -a /etc/sysctl.conf
+
+# to signal that disk process is done, so conductor provisioners can proceed
+touch /tmp/disks_complete.signal
