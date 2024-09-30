@@ -291,7 +291,6 @@ resource "aws_instance" "supervisor" {
 ###
 
 resource "null_resource" "zookeeper" {
-  #TODO commonify these things
   count = var.zookeeper_num_nodes
 
   connection {

@@ -101,7 +101,6 @@ resource "aws_instance" "rama" {
 	command = "../common/upload_rama.sh ${var.rama_source_path} ${var.username} ${var.use_private_ip ? self.private_ip : self.public_ip}"
   }
 
-  # TODO new unpack rama script that doesn't do something
   provisioner "remote-exec" {
 	inline = [
 	  "cd /data/rama",
