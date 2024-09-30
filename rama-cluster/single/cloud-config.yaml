@@ -1,0 +1,27 @@
+#cloud-config
+write_files:
+# files for all
+  - path: /run/rama/rama.yaml
+    content: ${base64encode(rama_yaml_contents)}
+    encoding: b64
+    owner: ${username}:${username}
+
+# files for supervisor
+  - path: ${supervisor_service_file_destination}
+    content: ${base64encode(supervisor_service_file_contents)}
+    encoding: b64
+    owner: ${username}:${username}
+
+# files for conductor
+  - path: ${conductor_service_file_destination}
+    content: ${base64encode(conductor_service_file_contents)}
+    encoding: b64
+    owner: ${username}:${username}
+  - path: /data/rama/license/rama.license
+    content: ${base64encode(license_file_contents)}
+    encoding: b64
+    owner: ${username}:${username}
+  - path: /data/rama/unpack-rama.sh
+    content: ${base64encode(unpack_rama_contents)}
+    encoding: b64
+    owner: ${username}:${username}

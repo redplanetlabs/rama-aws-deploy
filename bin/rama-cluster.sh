@@ -2,7 +2,7 @@
 set -euo pipefail
 
 usage () {
-  echo "Usage: rama-cluster.sh <deploy|destroy|plan> <cluster-name> [optional terraform apply args]"
+  echo "Usage: rama-cluster.sh <deploy|destroy|plan> [--singleNode] <cluster-name> [optional terraform apply args]"
   exit 2
 }
 
@@ -12,11 +12,30 @@ DIR=$(realpath "$(dirname "$0")")
 CWD=$(pwd)
 
 OP_NAME=$1
-CLUSTER_NAME=$2
+shift # remove first arg, OP_NAME
+
+SINGLE_NODE=false
+
+if [[ "$1" == "--singleNode" ]]; then
+	SINGLE_NODE=true
+	shift
+fi
+
+	
+[[ $# -ge 1 ]] || usage
+
+CLUSTER_NAME=$1
+shift
+
 WORKSPACE_NAME=${CLUSTER_NAME}
 
 ROOT_DIR="$(realpath "${DIR}/..")"
-TF_ROOT_DIR="${ROOT_DIR}"/rama-cluster
+if [[ "$SINGLE_NODE" = true ]]; then
+   TF_ROOT_DIR="${ROOT_DIR}"/rama-cluster/single
+else
+   TF_ROOT_DIR="${ROOT_DIR}"/rama-cluster/multi
+fi
+
 HOME_CLUSTER_DIR="${HOME}/.rama/${CLUSTER_NAME}"
 
 if [[ $CLUSTER_NAME == "default" ]]; then
@@ -85,8 +104,8 @@ confirm_destroy () {
 }
 
 # allow passing in of extra args to `terraform apply`
-all_args=("$@")
-rest_args=("${all_args[@]:2}")
+all_args="$@"
+rest_args=("${all_args}")
 rest_args_set=${rest_args:-}
 if [ ! -z ${rest_args_set} ]; then
   tf_apply_args="${rest_args[@]}"
@@ -95,7 +114,6 @@ else
 fi
 
 run_deploy () {
-
   cd ${TF_ROOT_DIR}
   tfvars="$(find_rama_tfvars)"
   terraform init
