@@ -24,7 +24,7 @@ done
 
 
 # -f and sudo because we must override the rama.yaml that comes from extracting rama.zip
-sudo mv -f /run/rama/rama.yaml /data/rama/rama.yaml
+sudo mv -f /tmp/rama.yaml /data/rama/rama.yaml
 
 cd /data/rama
 

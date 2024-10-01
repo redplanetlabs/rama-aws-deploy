@@ -1,6 +1,3 @@
-# put custom rama.yaml here
-# conductor.host and zookeeper.servers will be added automatically
-
 supervisor.port.range:
   - 20000
   - 21000
@@ -11,7 +8,7 @@ worker.child.opts: "-Xms8192m -Xmx8192m -Xmn4096m -XX:SurvivorRatio=4 -XX:MaxTen
 local.dir: "local-rama-data"
 
 zookeeper.servers:
-  - "localhost"
+  - "${ zk_private_ip }"
 
 conductor.host: "localhost"
 supervisor.host: "localhost"
