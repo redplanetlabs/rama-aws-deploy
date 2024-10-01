@@ -45,24 +45,35 @@ This deploy requires a full Rama release which currently requires being part of 
 
 ## Deploying
 
-### Deploying a Rama Cluster and Modules
+`rama-aws-deploy` can be used to create either multi-node or single-node Rama deployments.
 
-To deploy a rama cluster:
+### Deploying a multi-node Rama cluster
 
 1. Make sure you have your zip file of Rama and license downloaded.
-2. Create `rama.tfvars` at the root of your project to set Terraform variables.
-   These govern e.g. the number of supervisors to deploy.
-   See `rama.tfvars.multi.example` or `rama.tfvars.single.example`, depending on if you want to run on a single instance or multiple. There are several variables that are
-   required to set.
-3. Run `bin/rama-cluster.sh deploy <cluster-name> [opt-args]` or `bin/rama-cluster.sh deploy --singleNode <cluster-name> [opt-args]`.
+2. Create `rama.tfvars` at the root of your project to set Terraform variables. These govern e.g. the number of supervisors to deploy. See `rama.tfvars.multi.example`. There are several variables that are required to set.
+3. Run `bin/rama-cluster.sh deploy <cluster-name> [opt-args]`.
    `opt-args` are passed to `terraform apply`.
    For example, if you wanted to just deploy zookeeper servers, you would run
    `bin/rama-cluster.sh deploy my-cluster -target=aws_instance.zookeeper`.
 
+### Deploying a single-node Rama cluster
+
+This option deploys Zookeeper, Conductor, and one supervisor onto the same node.
+
+1. Make sure you have your zip file of Rama and license downloaded.
+2. Create `rama.tfvars` at the root of your project to set Terraform variables.  See `rama.tfvars.single.example`. There are several variables that are required to set.
+3. Run `bin/rama-cluster.sh deploy --singleNode <cluster-name>`.
+
+
+### Deploying modules
+
 To run modules, use `rama-<cluster-name> deploy ...` (in your ~/.rama, in your PATH). `rama-<cluster-name>` is a
 symlink to a `rama` script that is configured to point to the launched cluster.
 
-To destroy a cluster run `bin/rama-cluster.sh destroy <cluster-name>`.
+
+### Destroying a cluster
+
+To destroy a cluster run `bin/rama-cluster.sh destroy <cluster-name>` or `bin/rama-cluster.sh --singleNode destroy <cluster-name>` depending on whether it's a multi-node or single node cluster.
 
 ## Cluster Configuration and Debugging
 
@@ -113,7 +124,7 @@ The relevant directories to look at are the `$HOME` directory, as well as
 
 ## rama.tfvars variables
 
-### region 
+### region
 - type: `string`
 - required: `true`
 
