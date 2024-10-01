@@ -131,9 +131,6 @@ data "cloudinit_config" "rama_config" {
 	content = templatefile("./cloud-config.yaml", {
 	  username = var.username,
 
-	  # rama.yaml
-	  rama_yaml_contents = templatefile("./rama.yaml", {}),
-
 	  # conductor.service
 	  conductor_service_name = "conductor",
 	  conductor_service_file_destination = "${local.systemd_dir}/conductor.service",
@@ -199,6 +196,13 @@ resource "null_resource" "rama" {
 	destination = "${local.home_dir}/zookeeper/data/myid"
   }
 
+  provisioner "file" {
+	content = templatefile("./rama.yaml", {
+	  zk_private_ip = aws_instance.rama.private_ip
+	})
+	destination = "/tmp/rama.yaml"
+  }
+
   provisioner "remote-exec" {
     script = "./start.sh"
   }
@@ -220,7 +224,7 @@ resource "null_resource" "local" {
         conductor_public_ip  = aws_instance.rama.public_ip
         conductor_private_ip = aws_instance.rama.private_ip
       })
-    )
+      )
   }
 }
 
