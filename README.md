@@ -67,8 +67,16 @@ This option deploys Zookeeper, Conductor, and one supervisor onto the same node.
 
 ### Deploying modules
 
-To run modules, use `rama-<cluster-name> deploy ...` (in your ~/.rama, in your PATH). `rama-<cluster-name>` is a
-symlink to a `rama` script that is configured to point to the launched cluster.
+Documentation on how to deploy modules is [on this page](https://redplanetlabs.com/docs/~/operating-rama.html#_launching_modules). `rama-aws-deploy` sets up a symlink in `~/.rama` to a `rama` script pointing to the cluster with the name `rama-<cluster-name>`. Here's an example of deploying self-monitoring for a cluster named "staging":
+
+```
+rama-staging deploy \
+  --action launch \
+  --systemModule monitoring \
+  --tasks 8 \
+  --threads 2 \
+  --workers 2
+```
 
 
 ### Destroying a cluster
