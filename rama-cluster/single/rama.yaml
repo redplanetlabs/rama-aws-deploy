@@ -10,5 +10,5 @@ local.dir: "local-rama-data"
 zookeeper.servers:
   - "${ zk_private_ip }"
 
-conductor.host: "localhost"
-supervisor.host: "localhost"
+conductor.host: "${ conductor_private_ip }"
+supervisor.host: "${ supervisor_private_ip }"
