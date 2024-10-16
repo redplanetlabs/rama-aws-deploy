@@ -199,6 +199,8 @@ resource "null_resource" "rama" {
   provisioner "file" {
 	content = templatefile("./rama.yaml", {
 	  zk_private_ip = aws_instance.rama.private_ip
+	  conductor_private_ip = aws_instance.rama.private_ip
+	  supervisor_private_ip = aws_instance.rama.private_ip
 	})
 	destination = "/tmp/rama.yaml"
   }
