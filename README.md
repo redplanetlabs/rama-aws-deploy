@@ -41,8 +41,6 @@ key_name = <name of the key you have configured as a key pair for EC2>
 
 For AWS authentication, we recommend setting up [aws-vault](https://github.com/99designs/aws-vault).
 
-This deploy requires a full Rama release which currently requires being part of the [private beta](https://docs.google.com/forms/d/e/1FAIpQLSfrhmBwI0YAeaL8u4XmgfscW4UIUUDp2ZHSs4KmPH_TaDt1QQ/viewform).
-
 ## Deploying
 
 `rama-aws-deploy` can be used to create either multi-node or single-node Rama deployments.
