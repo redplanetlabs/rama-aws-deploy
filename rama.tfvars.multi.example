@@ -4,7 +4,6 @@ username = "ec2-user"
 vpc_security_group_ids = ["sg-12345"]
 
 rama_source_path    = "/absolute/path/to/rama.zip"
-license_source_path = "/absolute/path/to/license.edn"
 zookeeper_url   = "https://dlcdn.apache.org/zookeeper/zookeeper-3.8.4/apache-zookeeper-3.8.4-bin.tar.gz"
 
 zookeeper_ami_id  = "ami-56789"
@@ -18,6 +17,7 @@ zookeeper_instance_type  = "m6g.medium"
 supervisor_num_nodes = 2
 
 # Optional
+license_source_path = "/absolute/path/to/license.edn"
 zookeeper_num_nodes  = 1
 supervisor_volume_size_gb = 100
 use_private_ip = false

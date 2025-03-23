@@ -159,7 +159,7 @@ An absolute path pointing to the location on the local disk of your `rama.zip`.
 
 ### license_source_path
 - type: `string`
-- required: `true`
+- required: `false`
 
 An absolute path pointing to the location on the local disk of your Rama license file.
 

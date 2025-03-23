@@ -11,10 +11,12 @@ write_files:
     content: ${base64encode(service_file_contents)}
     encoding: b64
     owner: ${username}:${username}
+%{ if license_file_contents != "" }
   - path: /data/rama/license/rama.license
     content: ${base64encode(license_file_contents)}
     encoding: b64
     owner: ${username}:${username}
+%{ endif }
   - path: /data/rama/unpack-rama.sh
     content: ${base64encode(unpack_rama_contents)}
     encoding: b64
