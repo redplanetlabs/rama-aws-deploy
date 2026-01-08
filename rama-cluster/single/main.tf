@@ -31,7 +31,11 @@ variable "license_source_path" {
 }
 variable "zookeeper_url" { type = string }
 
-variable "ami_id" { type = string }
+variable "ami_id" {
+  type    = string
+  default = ""
+  description = "AMI ID to use. If empty, uses latest Amazon Linux 2023 ARM64 from SSM Parameter Store"
+}
 
 variable "instance_type" { type = string }
 
@@ -68,6 +72,8 @@ locals {
   home_dir = "/home/${var.username}"
   systemd_dir = "/etc/systemd/system"
   vpc_security_group_ids = var.vpc_security_group_ids
+  # Use provided ami_id if set, otherwise fetch latest AL2023 ARM64 from SSM
+  ami_id = var.ami_id != "" ? var.ami_id : data.aws_ssm_parameter.al2023_ami.value
 }
 
 ###
@@ -79,11 +85,19 @@ data "http" "myip" {
 }
 
 ###
+# Latest Amazon Linux 2023 ARM64 AMI
+###
+
+data "aws_ssm_parameter" "al2023_ami" {
+  name = "/aws/service/ami-amazon-linux-latest/al2023-ami-kernel-default-arm64"
+}
+
+###
 # Create EC2 instance
 ###
 
 resource "aws_instance" "rama" {
-  ami           = var.ami_id
+  ami           = local.ami_id
   instance_type = var.instance_type
   # subnet_id              = local.subnet_id
   vpc_security_group_ids = local.vpc_security_group_ids
