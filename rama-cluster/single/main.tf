@@ -14,10 +14,20 @@ variable "key_name" { type = string }     # from ~/.rama/auth.tfvars
 variable "username" { type = string }
 variable "vpc_security_group_ids" { type = list(string) }
 
-variable "rama_source_path" { type = string }
+variable "rama_source_path" {
+  type = string
+  validation {
+    condition     = fileexists(var.rama_source_path)
+    error_message = "The rama_source_path file does not exist: ${var.rama_source_path}"
+  }
+}
 variable "license_source_path" {
   type    = string
   default = ""
+  validation {
+    condition     = var.license_source_path == "" || fileexists(var.license_source_path)
+    error_message = "The license_source_path file does not exist: ${var.license_source_path}"
+  }
 }
 variable "zookeeper_url" { type = string }
 
@@ -38,6 +48,10 @@ variable "use_private_ip" {
 variable "private_ssh_key" {
   type    = string
   default = null
+  validation {
+    condition     = var.private_ssh_key == null || fileexists(var.private_ssh_key)
+    error_message = "The private_ssh_key file does not exist: ${var.private_ssh_key}"
+  }
 }
 
 provider "aws" {
