@@ -37,7 +37,10 @@ variable "ami_id" {
 }
 
 variable "instance_type" { type = string }
-variable "instance_profile" { type = string }
+variable "instance_profile" {
+  type    = string
+  default = null
+}
 
 variable "volume_size_gb" {
   type    = number
