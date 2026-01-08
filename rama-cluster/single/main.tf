@@ -1,4 +1,3 @@
-
 ###
 # variables & configuration
 ###
@@ -125,17 +124,29 @@ resource "aws_instance" "rama" {
 
   # Conductor setup
   provisioner "remote-exec" {
-	# Make sure SSH si set up and available on the server before trying to upload rama.zip
-	inline = ["ls"]
+	# Wait for disk provisioning to complete
+	inline = [
+	  "echo 'Waiting for disks to complete...'",
+	  "while [ ! -f /tmp/disks_complete.signal ]; do sleep 1; done",
+	  "echo 'Disks ready, continuing...'"
+	]
+  }
+
+  provisioner "file" {
+	source = "../common/conductor/unpack-rama.sh"
+	destination = "/home/${var.username}/unpack-rama.sh"
   }
 
   provisioner "local-exec" {
 	when = create
-	command = "../common/upload_rama.sh ${var.rama_source_path} ${var.username} ${var.use_private_ip ? self.private_ip : self.public_ip}"
+	command = "scp -o 'StrictHostKeyChecking no' ${var.rama_source_path} ${var.username}@${var.use_private_ip ? self.private_ip : self.public_ip}:/home/${var.username}/rama.zip"
   }
 
   provisioner "remote-exec" {
 	inline = [
+	  "sudo mv /home/${var.username}/unpack-rama.sh /data/rama/",
+	  "sudo mv /home/${var.username}/rama.zip /data/rama/",
+	  "sudo chown ${var.username}:${var.username} /data/rama/unpack-rama.sh /data/rama/rama.zip",
 	  "cd /data/rama",
 	  "chmod +x unpack-rama.sh",
 	  "./unpack-rama.sh"
@@ -207,8 +218,9 @@ resource "null_resource" "rama" {
 
   provisioner "remote-exec" {
     inline = [
-      "chmod +x ${local.home_dir}/setup.sh",
-      "${local.home_dir}/setup.sh ${var.zookeeper_url}"
+      "cd ${local.home_dir}",
+      "chmod +x setup.sh",
+      "./setup.sh ${var.zookeeper_url}"
     ]
   }
 
@@ -238,8 +250,17 @@ resource "null_resource" "rama" {
 	destination = "/tmp/rama.yaml"
   }
 
+  provisioner "file" {
+	source = "./start.sh"
+	destination = "${local.home_dir}/start.sh"
+  }
+
   provisioner "remote-exec" {
-    script = "./start.sh"
+    inline = [
+      "cd ${local.home_dir}",
+      "chmod +x start.sh",
+      "./start.sh"
+    ]
   }
 }
 
