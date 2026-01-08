@@ -21,7 +21,7 @@ if [[ "$1" == "--singleNode" ]]; then
 	shift
 fi
 
-	
+
 [[ $# -ge 1 ]] || usage
 
 CLUSTER_NAME=$1

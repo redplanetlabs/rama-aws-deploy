@@ -15,7 +15,7 @@ if [ ! -z $DEVICE ] ; then
 fi
 
 USERNAME='${username}'
-if [ "$USERNAME" = '${username}' ]; then 
+if [ "$USERNAME" = '${username}' ]; then
   USERNAME="$1"
 fi
 
