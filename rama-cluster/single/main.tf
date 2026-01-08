@@ -38,6 +38,7 @@ variable "ami_id" {
 }
 
 variable "instance_type" { type = string }
+variable "instance_profile" { type = string }
 
 variable "volume_size_gb" {
   type    = number
@@ -101,6 +102,7 @@ resource "aws_instance" "rama" {
   instance_type = var.instance_type
   # subnet_id              = local.subnet_id
   vpc_security_group_ids = local.vpc_security_group_ids
+  iam_instance_profile   = var.instance_profile
   key_name               = var.key_name
 
   user_data = data.cloudinit_config.rama_config.rendered
