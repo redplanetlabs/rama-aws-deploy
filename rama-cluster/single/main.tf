@@ -247,6 +247,12 @@ resource "null_resource" "rama" {
 # Setup local to allow `rama-my-cluster` commands
 ###
 resource "null_resource" "local" {
+  depends_on = [null_resource.rama]
+
+  triggers = {
+    instance_id = aws_instance.rama.id
+  }
+
   # Render to local file on machine
   # https://github.com/hashicorp/terraform/issues/8090#issuecomment-291823613
   provisioner "local-exec" {

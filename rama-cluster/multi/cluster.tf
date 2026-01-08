@@ -360,6 +360,13 @@ resource "null_resource" "zookeeper" {
 # TODO find some way to include all ZK ip addresses :(
 ###
 resource "null_resource" "local" {
+  depends_on = [aws_instance.conductor, aws_instance.zookeeper]
+
+  triggers = {
+    conductor_id = aws_instance.conductor.id
+    zookeeper_ids = join(",", aws_instance.zookeeper[*].id)
+  }
+
   # Render to local file on machine
   # https://github.com/hashicorp/terraform/issues/8090#issuecomment-291823613
   provisioner "local-exec" {
