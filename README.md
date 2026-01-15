@@ -81,7 +81,7 @@ rama-staging deploy \
 
 ### Destroying a cluster
 
-To destroy a cluster run `bin/rama-cluster.sh destroy <cluster-name>` or `bin/rama-cluster.sh --singleNode destroy <cluster-name>` depending on whether it's a multi-node or single node cluster.
+To destroy a cluster run `bin/rama-cluster.sh destroy <cluster-name>` or `bin/rama-cluster.sh destroy --singleNode <cluster-name>` depending on whether it's a multi-node or single node cluster.
 
 ## Cluster Configuration and Debugging
 
