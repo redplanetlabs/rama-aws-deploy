@@ -13,10 +13,20 @@ variable "key_name" { type = string }     # from ~/.rama/auth.tfvars
 variable "username" { type = string }
 variable "vpc_security_group_ids" { type = list(string) }
 
-variable "rama_source_path" { type = string }
+variable "rama_source_path" {
+  type = string
+  validation {
+    condition     = fileexists(var.rama_source_path)
+    error_message = "The rama_source_path file does not exist: ${var.rama_source_path}"
+  }
+}
 variable "license_source_path" {
   type    = string
   default = ""
+  validation {
+    condition     = var.license_source_path == "" || fileexists(var.license_source_path)
+    error_message = "The license_source_path file does not exist: ${var.license_source_path}"
+  }
 }
 variable "zookeeper_url" { type = string }
 
@@ -50,6 +60,10 @@ variable "use_private_ip" {
 variable "private_ssh_key" {
   type    = string
   default = null
+  validation {
+    condition     = var.private_ssh_key == null || fileexists(var.private_ssh_key)
+    error_message = "The private_ssh_key file does not exist: ${var.private_ssh_key}"
+  }
 }
 
 provider "aws" {
@@ -190,18 +204,21 @@ resource "aws_instance" "conductor" {
     script = "wait-for-signal.sh"
   }
 
-  provisioner "remote-exec" {
-    # Make sure SSH is up and available on the server before trying to upload rama.zip
-    inline = ["ls"]
+  provisioner "file" {
+    source = "../common/conductor/unpack-rama.sh"
+    destination = "/home/${var.username}/unpack-rama.sh"
   }
 
   provisioner "local-exec" {
     when    = create
-    command = "../common/upload_rama.sh ${var.rama_source_path} ${var.username} ${var.use_private_ip ? self.private_ip : self.public_ip}"
+    command = "scp -o 'StrictHostKeyChecking no' ${var.rama_source_path} ${var.username}@${var.use_private_ip ? self.private_ip : self.public_ip}:/home/${var.username}/rama.zip"
   }
 
   provisioner "remote-exec" {
     inline = [
+      "sudo mv /home/${var.username}/unpack-rama.sh /data/rama/",
+      "sudo mv /home/${var.username}/rama.zip /data/rama/",
+      "sudo chown ${var.username}:${var.username} /data/rama/unpack-rama.sh /data/rama/rama.zip",
       "cd /data/rama",
       "chmod +x unpack-rama.sh",
       "./unpack-rama.sh"
@@ -346,6 +363,13 @@ resource "null_resource" "zookeeper" {
 # TODO find some way to include all ZK ip addresses :(
 ###
 resource "null_resource" "local" {
+  depends_on = [aws_instance.conductor, aws_instance.zookeeper]
+
+  triggers = {
+    conductor_id = aws_instance.conductor.id
+    zookeeper_ids = join(",", aws_instance.zookeeper[*].id)
+  }
+
   # Render to local file on machine
   # https://github.com/hashicorp/terraform/issues/8090#issuecomment-291823613
   provisioner "local-exec" {

@@ -1,4 +1,3 @@
-
 ###
 # variables & configuration
 ###
@@ -14,16 +13,34 @@ variable "key_name" { type = string }     # from ~/.rama/auth.tfvars
 variable "username" { type = string }
 variable "vpc_security_group_ids" { type = list(string) }
 
-variable "rama_source_path" { type = string }
+variable "rama_source_path" {
+  type = string
+  validation {
+    condition     = fileexists(var.rama_source_path)
+    error_message = "The rama_source_path file does not exist: ${var.rama_source_path}"
+  }
+}
 variable "license_source_path" {
   type    = string
   default = ""
+  validation {
+    condition     = var.license_source_path == "" || fileexists(var.license_source_path)
+    error_message = "The license_source_path file does not exist: ${var.license_source_path}"
+  }
 }
 variable "zookeeper_url" { type = string }
 
-variable "ami_id" { type = string }
+variable "ami_id" {
+  type    = string
+  default = ""
+  description = "AMI ID to use. If empty, uses latest Amazon Linux 2023 ARM64 from SSM Parameter Store"
+}
 
 variable "instance_type" { type = string }
+variable "instance_profile" {
+  type    = string
+  default = null
+}
 
 variable "volume_size_gb" {
   type    = number
@@ -38,6 +55,10 @@ variable "use_private_ip" {
 variable "private_ssh_key" {
   type    = string
   default = null
+  validation {
+    condition     = var.private_ssh_key == null || fileexists(var.private_ssh_key)
+    error_message = "The private_ssh_key file does not exist: ${var.private_ssh_key}"
+  }
 }
 
 provider "aws" {
@@ -54,6 +75,8 @@ locals {
   home_dir = "/home/${var.username}"
   systemd_dir = "/etc/systemd/system"
   vpc_security_group_ids = var.vpc_security_group_ids
+  # Use provided ami_id if set, otherwise fetch latest AL2023 ARM64 from SSM
+  ami_id = var.ami_id != "" ? var.ami_id : data.aws_ssm_parameter.al2023_ami.value
 }
 
 ###
@@ -65,14 +88,23 @@ data "http" "myip" {
 }
 
 ###
+# Latest Amazon Linux 2023 ARM64 AMI
+###
+
+data "aws_ssm_parameter" "al2023_ami" {
+  name = "/aws/service/ami-amazon-linux-latest/al2023-ami-kernel-default-arm64"
+}
+
+###
 # Create EC2 instance
 ###
 
 resource "aws_instance" "rama" {
-  ami           = var.ami_id
+  ami           = local.ami_id
   instance_type = var.instance_type
   # subnet_id              = local.subnet_id
   vpc_security_group_ids = local.vpc_security_group_ids
+  iam_instance_profile   = var.instance_profile
   key_name               = var.key_name
 
   user_data = data.cloudinit_config.rama_config.rendered
@@ -95,17 +127,29 @@ resource "aws_instance" "rama" {
 
   # Conductor setup
   provisioner "remote-exec" {
-	# Make sure SSH si set up and available on the server before trying to upload rama.zip
-	inline = ["ls"]
+	# Wait for disk provisioning to complete
+	inline = [
+	  "echo 'Waiting for disks to complete...'",
+	  "while [ ! -f /tmp/disks_complete.signal ]; do sleep 1; done",
+	  "echo 'Disks ready, continuing...'"
+	]
+  }
+
+  provisioner "file" {
+	source = "../common/conductor/unpack-rama.sh"
+	destination = "/home/${var.username}/unpack-rama.sh"
   }
 
   provisioner "local-exec" {
 	when = create
-	command = "../common/upload_rama.sh ${var.rama_source_path} ${var.username} ${var.use_private_ip ? self.private_ip : self.public_ip}"
+	command = "scp -o 'StrictHostKeyChecking no' ${var.rama_source_path} ${var.username}@${var.use_private_ip ? self.private_ip : self.public_ip}:/home/${var.username}/rama.zip"
   }
 
   provisioner "remote-exec" {
 	inline = [
+	  "sudo mv /home/${var.username}/unpack-rama.sh /data/rama/",
+	  "sudo mv /home/${var.username}/rama.zip /data/rama/",
+	  "sudo chown ${var.username}:${var.username} /data/rama/unpack-rama.sh /data/rama/rama.zip",
 	  "cd /data/rama",
 	  "chmod +x unpack-rama.sh",
 	  "./unpack-rama.sh"
@@ -177,8 +221,9 @@ resource "null_resource" "rama" {
 
   provisioner "remote-exec" {
     inline = [
-      "chmod +x ${local.home_dir}/setup.sh",
-      "${local.home_dir}/setup.sh ${var.zookeeper_url}"
+      "cd ${local.home_dir}",
+      "chmod +x setup.sh",
+      "./setup.sh ${var.zookeeper_url}"
     ]
   }
 
@@ -208,8 +253,17 @@ resource "null_resource" "rama" {
 	destination = "/tmp/rama.yaml"
   }
 
+  provisioner "file" {
+	source = "./start.sh"
+	destination = "${local.home_dir}/start.sh"
+  }
+
   provisioner "remote-exec" {
-    script = "./start.sh"
+    inline = [
+      "cd ${local.home_dir}",
+      "chmod +x start.sh",
+      "./start.sh"
+    ]
   }
 }
 
@@ -217,6 +271,12 @@ resource "null_resource" "rama" {
 # Setup local to allow `rama-my-cluster` commands
 ###
 resource "null_resource" "local" {
+  depends_on = [null_resource.rama]
+
+  triggers = {
+    instance_id = aws_instance.rama.id
+  }
+
   # Render to local file on machine
   # https://github.com/hashicorp/terraform/issues/8090#issuecomment-291823613
   provisioner "local-exec" {

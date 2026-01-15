@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 
-sudo mv /home/${username}/rama.zip /data/rama
 cd /data/rama
 
 sudo unzip -n rama.zip
